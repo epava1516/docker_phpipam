@@ -1,0 +1,40 @@
+version: '3.7'
+
+volumes:
+  phpipam_mysql:
+
+networks:
+  phpipam:
+    external: false
+  nginx_nginx_network:
+    external: true
+
+services:
+  phpipam_web:
+    container_name: phpipam_web
+    image: phpipam
+    environment:
+      - MYSQL_ENV_MYSQL_USER=phpipam
+      - MYSQL_ENV_MYSQL_PASSWORD=secret
+      - MYSQL_ENV_MYSQL_DB=phpipam
+      - MYSQL_ENV_MYSQL_HOST=phpipam_db
+    networks:
+      - phpipam
+      - nginx_nginx_network
+    depends_on:
+      - phpipam_db
+
+  phpipam_db:
+    container_name: phpipam_db
+    image: mariadb:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=imtoosecretformyshorts
+      - MYSQL_DATABASE=phpipam
+      - MYSQL_USER=phpipam
+      - MYSQL_PASSWORD=secret
+    networks:
+      - phpipam
+    volumes:
+      - type: volume
+        source: phpipam_mysql
+        target: /var/lib/mysql
